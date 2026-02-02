@@ -70,7 +70,7 @@ async function mostraMessaggi(ctx, messaggi) {
 
     messaggi.forEach((msg) => {
       testoMessaggio += `*${++index}.* ${msg.testo}\n`;
-      testoMessaggio += `👤 ${msg.autore} | 📅 ${msg.data}\n\n`;
+      testoMessaggio += `👤 ${msg.autore}\n 📅 ${msg.data}\n\n\n`;
     });
     
     testoMessaggio += `*Totale:* ${messaggi.length} segnalazioni`;
