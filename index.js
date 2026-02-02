@@ -58,8 +58,9 @@ bot.command("list", async (ctx) => {
 async function mostraMessaggi(ctx, messaggi) {
   try {
     let testoMessaggio = `*📋 SEGNALAZIONI RICEVUTE*\n\n`;
-    
-    messaggi.forEach((msg, index) => {
+    let index = 0
+
+    messaggi.forEach((msg) => {
       testoMessaggio += `*${index + 1}.* ${msg.testo}\n`;
       testoMessaggio += `👤 ${msg.autore} | 📅 ${msg.data}\n\n`;
     });
