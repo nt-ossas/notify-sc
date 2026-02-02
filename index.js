@@ -1,6 +1,7 @@
 require("dotenv").config()
 const { Telegraf } = require("telegraf")
 const express = require('express')
+const axios = require('axios') // MANCAVA QUESTO!
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const chat_id = process.env.CHAT_ID
@@ -30,6 +31,9 @@ bot.command("list", async (ctx) => {
     return
   }
 
+  // Mostra un messaggio di attesa
+  await ctx.reply("⏳ Caricamento segnalazioni in corso...")
+
   //carica tutti i messaggi dal db altervista
   try {
     const response = await axios.post(api_url + "carica_msg.php");
@@ -37,38 +41,42 @@ bot.command("list", async (ctx) => {
     console.log("Messaggi caricati:", response.data)
     
     if (response.data.success) {
-      mostraMessaggi(response.data.messaggi)
+      // Passa ctx alla funzione per poter rispondere nella chat
+      await mostraMessaggi(ctx, response.data.messaggi)
     } else {
+      await ctx.reply("❌ Errore dal server: " + response.data.error)
       console.error("Errore dal server:", response.data.error)
     }
     
   } catch (error){
+    await ctx.reply("❌ Errore nel caricamento delle segnalazioni")
     console.error("Errore nel caricamento:", error)
   }
-
-  ctx.reply("Ciao! Sono il tuo bot di assistenza per Schoolsync")
 })
 
-async function mostraMessaggi(messaggi) {
+// MODIFICA: Aggiungi ctx come parametro
+async function mostraMessaggi(ctx, messaggi) {
   try {
-    let testoMessaggio = `*📋 SEGNALAZIONI RICEVUTE*\\n\\n`;
+    let testoMessaggio = `*📋 SEGNALAZIONI RICEVUTE*\n\n`;
     
     messaggi.forEach((msg, index) => {
-      testoMessaggio += `*${index + 1}\\.* ${msg.testo}\\n`;
-      testoMessaggio += `👤 ${msg.autore} \\| 📅 ${msg.data}\\n\\n`;
+      testoMessaggio += `*${index + 1}.* ${msg.testo}\n`;
+      testoMessaggio += `👤 ${msg.autore} | 📅 ${msg.data}\n\n`;
     });
     
     testoMessaggio += `*Totale:* ${messaggi.length} segnalazioni`;
     
-    await bot.telegram.sendMessage(chat_id, testoMessaggio, {
-      parse_mode: 'MarkdownV2',
+    // MODIFICA: Invia al ctx invece che a chat_id
+    await ctx.reply(testoMessaggio, {
+      parse_mode: 'Markdown',
       disable_web_page_preview: true
     });
     
     console.log("✅ Messaggio inviato");
   } catch (error) {
     console.error("❌ Errore invio:", error);
-    throw error;
+    // MODIFICA: Rispondi nella chat in caso di errore
+    await ctx.reply("❌ Errore nella visualizzazione dei messaggi");
   }
 }
 
@@ -108,10 +116,10 @@ app.post('/webhook/assistenza', async (req, res) => {
   try {
     await inviaNotifica(
       `🆘 Nuova richiesta di assistenza:\n\n` +
-      `👤 Nome: ${username}\n\n` +
-      `📧 Email: ${email}\n\n` +
-      `🏫 Scuola: ${scuola} ${classe}\n\n` +
-      `❓ Problema:\n\n${problema}`
+      `👤 Nome: ${username}\n` +
+      `📧 Email: ${email}\n` +
+      `🏫 Scuola: ${scuola} ${classe}\n` +
+      `❓ Problema:\n${problema}`
     )
     
     res.json({ success: true })
