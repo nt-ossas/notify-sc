@@ -24,7 +24,6 @@ bot.command("start", async (ctx) => {
 
 const app = express()
 
-// ⭐ CORS - Risolve l'errore CORS
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Headers', 'Content-Type')
@@ -37,7 +36,9 @@ app.use((req, res, next) => {
 
 app.use(express.json())
 
-// Health check endpoint
+// Webhook endpoint for Telegram
+app.use(bot.webhookCallback('/telegram-webhook'))
+
 app.get('/', (req, res) => {
   res.json({ status: 'Bot online', timestamp: new Date() })
 })
@@ -59,16 +60,28 @@ app.post('/webhook/assistenza', async (req, res) => {
     res.json({ success: true })
   } catch (error) {
     console.error('❌ Errore:', error)
-    res.status(500).json({ success: false, error: error.message })
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    })
   }
 })
 
-// ⭐ Porta dinamica per Render
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`✅ Webhook server attivo su porta ${PORT}`))
+const PORT = process.env.PORT || 10000
 
-bot.launch()
-console.log("✅ Bot online...")
+app.listen(PORT, async () => {
+  console.log(`✅ Webhook server attivo su porta ${PORT}`)
+  
+  // Set webhook URL for Telegram
+  const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/telegram-webhook`
+  
+  try {
+    await bot.telegram.setWebhook(webhookUrl)
+    console.log(`✅ Webhook configurato: ${webhookUrl}`)
+  } catch (error) {
+    console.error('❌ Errore configurazione webhook:', error)
+  }
+})
 
 // Graceful shutdown
 process.once('SIGINT', () => bot.stop('SIGINT'))
