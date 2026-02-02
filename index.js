@@ -4,6 +4,7 @@ const express = require('express')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const chat_id = process.env.CHAT_ID
+const api_url = process.env.API_URL_DEFAULT
 
 async function inviaNotifica(messaggio) {
   try {
@@ -22,6 +23,54 @@ bot.command("start", async (ctx) => {
   }
   ctx.reply("Ciao! Sono il tuo bot di assistenza per Schoolsync")
 })
+
+bot.command("list", async (ctx) => {
+  if(ctx.chat.id != chat_id){
+    ctx.reply("❌ Accesso non consentito, solo l'admin può usufruire di questo bot")
+    return
+  }
+
+  //carica tutti i messaggi dal db altervista
+  try {
+    const response = await axios.post(api_url + "carica_msg.php");
+    
+    console.log("Messaggi caricati:", response.data)
+    
+    if (response.data.success) {
+      mostraMessaggi(response.data.messaggi)
+    } else {
+      console.error("Errore dal server:", response.data.error)
+    }
+    
+  } catch (error){
+    console.error("Errore nel caricamento:", error)
+  }
+
+  ctx.reply("Ciao! Sono il tuo bot di assistenza per Schoolsync")
+})
+
+async function mostraMessaggi(messaggi) {
+  try {
+    let testoMessaggio = `*📋 SEGNALAZIONI RICEVUTE*\\n\\n`;
+    
+    messaggi.forEach((msg, index) => {
+      testoMessaggio += `*${index + 1}\\.* ${msg.testo}\\n`;
+      testoMessaggio += `👤 ${msg.autore} \\| 📅 ${msg.data}\\n\\n`;
+    });
+    
+    testoMessaggio += `*Totale:* ${messaggi.length} segnalazioni`;
+    
+    await bot.telegram.sendMessage(chat_id, testoMessaggio, {
+      parse_mode: 'MarkdownV2',
+      disable_web_page_preview: true
+    });
+    
+    console.log("✅ Messaggio inviato");
+  } catch (error) {
+    console.error("❌ Errore invio:", error);
+    throw error;
+  }
+}
 
 const app = express()
 
