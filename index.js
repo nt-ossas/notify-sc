@@ -25,6 +25,14 @@ bot.command("start", async (ctx) => {
   ctx.reply("Ciao! Sono il tuo bot di assistenza per Schoolsync")
 })
 
+bot.command("completa", async (ctx) => {
+  if(ctx.chat.id != chat_id){
+    ctx.reply("❌ Accesso non consentito, solo l'admin può usufruire di questo bot")
+    return
+  }
+  ctx.reply("Comando ancora da implementare")
+})
+
 bot.command("list", async (ctx) => {
   if(ctx.chat.id != chat_id){
     ctx.reply("❌ Accesso non consentito, solo l'admin può usufruire di questo bot")
@@ -61,7 +69,7 @@ async function mostraMessaggi(ctx, messaggi) {
     let index = 0
 
     messaggi.forEach((msg) => {
-      testoMessaggio += `*${index + 1}.* ${msg.testo}\n`;
+      testoMessaggio += `*${++index}.* ${msg.testo}\n`;
       testoMessaggio += `👤 ${msg.autore} | 📅 ${msg.data}\n\n`;
     });
     
