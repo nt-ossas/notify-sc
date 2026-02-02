@@ -25,6 +25,7 @@ bot.command("start", async (ctx) => {
 
 const app = express()
 
+//CORS per sicurezza
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Headers', 'Content-Type')
@@ -35,9 +36,10 @@ app.use((req, res, next) => {
   next()
 })
 
+//express
 app.use(express.json())
 
-// Telegram webhook endpoint
+//telegram webhook endpoint
 app.use(bot.webhookCallback('/telegram-webhook'))
 
 app.get('/', (req, res) => {
@@ -48,15 +50,16 @@ app.get('/', (req, res) => {
   })
 })
 
+//quando arriva all'endpoint
 app.post('/webhook/assistenza', async (req, res) => {
-  const { user, email, scuola, classe, problema } = req.body
+  const { username, email, scuola, classe, problema } = req.body
   
-  console.log('📥 Richiesta ricevuta:', { user, email, scuola, classe })
+  console.log('Richiesta ricevuta:', { username, email, scuola, classe })
   
   try {
     await inviaNotifica(
       `🆘 Nuova richiesta di assistenza:\n\n` +
-      `👤 Nome: ${user}\n\n` +
+      `👤 Nome: ${username}\n\n` +
       `📧 Email: ${email}\n\n` +
       `🏫 Scuola: ${scuola} ${classe}\n\n` +
       `❓ Problema:\n\n${problema}`
@@ -75,7 +78,5 @@ app.post('/webhook/assistenza', async (req, res) => {
 const PORT = process.env.PORT || 10000
 
 app.listen(PORT, () => {
-  console.log(`✅ Server attivo su porta ${PORT}`)
-  console.log(`📡 Webhook endpoint: https://notify-sc.onrender.com/telegram-webhook`)
-  console.log(`⚠️  Assicurati che il webhook sia configurato manualmente`)
+  console.log(`Server attivo su porta ${PORT}`)
 })
