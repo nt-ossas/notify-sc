@@ -39,14 +39,10 @@ bot.command("list", async (ctx) => {
     const response = await axios.post(api_url + "carica_msg.php");
     
     console.log("Messaggi caricati:", response.data)
-    
-    console.log(response.data.messaggi)
-    console.log(response.messaggi)
-    console.log(response.data)
 
     if (response.data.success) {
       // Passa ctx alla funzione per poter rispondere nella chat
-      await mostraMessaggi(ctx, response.data.messaggi)
+      await mostraMessaggi(ctx, response.data.msgs)
     } else {
       await ctx.reply("❌ Errore dal server: " + response.data.error)
       console.error("Errore dal server:", response.data.error)
