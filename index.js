@@ -11,15 +11,16 @@ async function inviaNotifica(messaggio) {
     console.log("✅ Messaggio inviato")
   } catch (error) {
     console.error("❌ Errore invio:", error)
+    throw error
   }
 }
 
 bot.command("start", async (ctx) => {
   if(ctx.chat.id != chat_id){
-    ctx.reply("❌ Accesso non consentito, solo l'admin puo usufruire di questo bot")
+    ctx.reply("❌ Accesso non consentito, solo l'admin può usufruire di questo bot")
     return
   }
-  ctx.reply("Ciao! Sono il tuo bot di assistenza per Schoolsync, ti aiuterò a gestire le richieste di assistenza per la tua applicazione")
+  ctx.reply("Ciao! Sono il tuo bot di assistenza per Schoolsync")
 })
 
 const app = express()
@@ -36,11 +37,15 @@ app.use((req, res, next) => {
 
 app.use(express.json())
 
-// Webhook endpoint for Telegram
+// Telegram webhook endpoint
 app.use(bot.webhookCallback('/telegram-webhook'))
 
 app.get('/', (req, res) => {
-  res.json({ status: 'Bot online', timestamp: new Date() })
+  res.json({ 
+    status: 'Bot online', 
+    timestamp: new Date(),
+    webhook: 'https://notify-sc.onrender.com/telegram-webhook'
+  })
 })
 
 app.post('/webhook/assistenza', async (req, res) => {
@@ -69,20 +74,8 @@ app.post('/webhook/assistenza', async (req, res) => {
 
 const PORT = process.env.PORT || 10000
 
-app.listen(PORT, async () => {
-  console.log(`✅ Webhook server attivo su porta ${PORT}`)
-  
-  // Set webhook URL for Telegram
-  const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/telegram-webhook`
-  
-  try {
-    await bot.telegram.setWebhook(webhookUrl)
-    console.log(`✅ Webhook configurato: ${webhookUrl}`)
-  } catch (error) {
-    console.error('❌ Errore configurazione webhook:', error)
-  }
+app.listen(PORT, () => {
+  console.log(`✅ Server attivo su porta ${PORT}`)
+  console.log(`📡 Webhook endpoint: https://notify-sc.onrender.com/telegram-webhook`)
+  console.log(`⚠️  Assicurati che il webhook sia configurato manualmente`)
 })
-
-// Graceful shutdown
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
