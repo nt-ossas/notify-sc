@@ -40,6 +40,10 @@ bot.command("list", async (ctx) => {
     
     console.log("Messaggi caricati:", response.data)
     
+    console.log(response.data.messaggi)
+    console.log(response.messaggi)
+    console.log(response.data)
+
     if (response.data.success) {
       // Passa ctx alla funzione per poter rispondere nella chat
       await mostraMessaggi(ctx, response.data.messaggi)
