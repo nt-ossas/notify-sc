@@ -144,17 +144,18 @@ app.get('/', (req, res) => {
 })
 
 app.post('/webhook/assistenza', async (req, res) => {
-  const { username, email, scuola, classe, problema } = req.body
+  const { id, username, email, scuola, classe, problema } = req.body
 
-  console.log('Richiesta ricevuta:', { username, email, scuola, classe })
+  console.log('Richiesta ricevuta:', { id, username, email, scuola, classe })
 
   try {
     await inviaNotifica(
       `🆘 Nuova richiesta di assistenza:\n\n` +
-      `👤 Nome: ${username}\n` +
-      `📧 Email: ${email}\n` +
-      `🏫 Scuola: ${scuola} ${classe}\n` +
-      `❓ Problema:\n${problema}`
+      `🆔 Id: ${id}\n\n` +
+      `👤 Nome: ${username}\n\n` +
+      `📧 Email: ${email}\n\n` +
+      `🏫 Scuola: ${scuola} ${classe}\n\n\n` +
+      `❓ Problema:${problema}`
     )
 
     res.json({ success: true })
