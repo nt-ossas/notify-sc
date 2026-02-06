@@ -155,7 +155,7 @@ app.post('/webhook/assistenza', async (req, res) => {
       `👤 Nome: ${username}\n\n` +
       `📧 Email: ${email}\n\n` +
       `🏫 Scuola: ${scuola} ${classe}\n\n\n` +
-      `❓ Problema:${problema}`
+      `❓ Problema: ${problema}`
     )
 
     res.json({ success: true })
