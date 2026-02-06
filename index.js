@@ -30,7 +30,29 @@ bot.command("completa", async (ctx) => {
     ctx.reply("❌ Accesso non consentito, posso rispondere solo al mio padrone Ossas")
     return
   }
-  ctx.reply("Comando ancora da implementare")
+  //ctx.reply("Comando ancora da implementare")
+
+  const args = ctx.message.text.split(' ')
+  const id = args[1]
+  
+  if (!id) {
+    await ctx.reply("❌ Specifica l'ID: /completa [numero]")
+    return
+  }
+
+  try{
+    const response = await axios.post(api_url + "elimina_msg.php", { id })
+
+    if(response.data.success){
+      await ctx.reply("Problema " + id + " completato")
+    } else {
+      await ctx.reply("❌ Errore dal server: " + response.data.error)
+      console.error("Errore dal server:", response.data.error)
+    }
+  } catch (error) {
+    await ctx.reply("❌ Errore nell'eliminazione delle segnalazioni")
+    console.error("Errore nell'eliminazione:", error)
+  }
 })
 
 bot.command("list", async (ctx) => {
