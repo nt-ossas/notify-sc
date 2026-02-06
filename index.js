@@ -35,8 +35,8 @@ bot.command("completa", async (ctx) => {
   const args = ctx.message.text.split(' ')
   const id = args[1]
   
-  if (!id) {
-    await ctx.reply("❌ Specifica l'ID: /completa [numero]")
+  if (!id || (isNaN(id) && id != "all")) {
+    await ctx.reply("❌ Specifica l'ID valido: /completa [numero]")
     return
   }
 
@@ -95,13 +95,12 @@ async function mostraMessaggi(ctx, messaggi) {
     }
 
     let testoMessaggio = `<b>📋 SEGNALAZIONI RICEVUTE</b>\n\n`;
-    let index = 0
 
     messaggi.forEach((msg) => {
       const testoEscape = escapeHtml(msg.testo);
       const autoreEscape = escapeHtml(msg.autore);
       
-      testoMessaggio += `<b>${++index}.</b> ${testoEscape}\n`;
+      testoMessaggio += `<b>${msg.id}.</b> ${testoEscape}\n`;
       testoMessaggio += `👤 ${autoreEscape}\n 📅 ${msg.data}\n\n\n`;
     });
 
