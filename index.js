@@ -44,7 +44,8 @@ bot.command("completa", async (ctx) => {
     const response = await axios.post(api_url + "elimina_msg.php", { id })
 
     if(response.data.success){
-      await ctx.reply("Problema " + id + " completato")
+      if(id != "all") await ctx.reply("Problema " + id + " completato")
+      else await ctx.reply("Tutti i problemi completati")
     } else {
       await ctx.reply("❌ Errore dal server: " + response.data.error)
       console.error("Errore dal server:", response.data.error)
